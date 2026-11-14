@@ -2,10 +2,9 @@
 
 ## Project Information
 ### 프로젝트 소개
-
-
 ### 주요기능 
 ### 원본 Sample Project URL
+- https://github.com/2026-2-OSS/week11_sample_project.git
 
 ---
 ## Installation
@@ -99,7 +98,104 @@ function handleDelete(id) {
 | `.btn.primary` | Add 버튼의 배경색을 초록색 `#15803d`로 변경. |
 | `.btn.primary:hover` | Add 버튼에 마우스를 올리면 진한 초록색 `#166534`가 표시되도록 변경. |
 
-## Feature Extension: 구현한 기능 2개 이상, 주요 코드 및 동작 결과
+## Feature Extension: 구현한 기능, 주요 코드 및 동작 결과
+
+### 1. 과목 등록 기능 (Create)
+
+- 수정 파일: `src/components/CourseList.jsx`
+- 과목명을 입력하고 Add 버튼을 누르면 기존 목록에 새 과목이 추가되도록 구현.
+- `trim()`으로 앞뒤 공백을 제거하고, 빈 문자열이면 안내창을 표시하여 다시 입력하도록 설정.
+- 새 과목의 ID는 현재 목록의 가장 큰 ID에 1을 더해 지정.
+
+**주요 코드**
+```javascript
+if (newName.trim() === "") {
+  alert("과목명을 입력해주세요.");
+  return;
+}
+
+setCourses((previous) => {
+  const nextId = Math.max(0, ...previous.map((course) => course.id)) + 1;
+  const newCourse = {
+    id: nextId,
+    name: newName.trim(),
+    category: "Major",
+    completed: false,
+  };
+  return [...previous, newCourse];
+});
+
+setNewName("");
+```
+**동작 결과**
+
+- 과목명을 입력하고 Add 버튼을 누르면 목록에 새 과목이 표시됨.
+- 전체 과목 수와 진행 중 과목 수가 증가하고 입력창이 비워짐.
+- 빈 문자열이나 공백만 입력하면 “과목명을 입력해주세요.”라는 안내창이 표시되고 과목은 추가되지 않음.
+
+### 2. 완료 상태 변경 기능 (Update)
+
+- 수정 파일: `src/components/CourseList.jsx`
+- 과목 왼쪽의 체크박스를 클릭하면 완료/미완료 상태가 전환되도록 구현.
+- map()으로 선택한 과목을 찾아 completed를 반대로 변경.
+- 기존 체크박스 및 스타일 연결을 활용하여 완료 여부를 화면에 표시.
+
+**주요 코드**
+```javascript
+setCourses(function (previous) {
+  const updatedCourses = previous.map(function (course) {
+    if (course.id === id) {
+      return {
+        ...course,
+        completed: !course.completed,
+      };
+    }
+
+    return course;
+  });
+
+  return updatedCourses;
+});
+```
+**동작 결과**
+
+- 미완료 과목을 체크하면 완료 상태가 되고 과목명에 취소선이 표시됨.
+- 체크를 해제하면 미완료 상태로 돌아오고 취소선이 사라짐.
+- 상단의 완료,진행 중 과목 수가 변경된 상태에 맞게 새롭게 갱신됨.
+
+### 3. 과목명 검색 기능
+
+- 수정 파일: `src/components/CourseList.jsx`
+- 검색어를 `searchTerm` State로 관리.
+- `filter()`와 `includes()`를 사용하여 검색어가 포함된 과목만 표시.
+
+**주요 코드**
+
+```javascript
+const [searchTerm, setSearchTerm] = useState("");
+
+const filteredCourses = courses.filter((course) =>
+  course.name.toLowerCase().includes(searchTerm.trim().toLowerCase()),
+);
+```
+
+```jsx
+{filteredCourses.map((course) => (
+  <CourseItem
+    key={course.id}
+    course={course}
+    onDelete={handleDelete}
+    onToggle={handleToggle}
+  />
+))}
+```
+
+**동작 결과**
+- 과목명의 일부를 입력하면 해당 문자열이 포함된 과목만 표시.
+- 영문 대소문자를 다르게 입력해도 같은 결과가 표시.
+- 검색어를 지우면 전체 목록이 다시 표시.
+- 검색 결과가 없으면 “조건에 맞는 과목이 없습니다.”라는 안내 문구가 표시.
+
 
 ## Deployment
 ### 실제 접근 가능한 Vercel URL: https://oss-week11-sample-project.vercel.app/
